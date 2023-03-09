@@ -66,7 +66,7 @@
 与普通工业零件不同，危化品工件中通常有危险度较高的化学部件，如易爆、有毒或有辐射的填充物。对于这类区域的精细检测和分割，一方面可以避免误操作减少事故，另一方面可为检测网络提供更精准的边界区域特征。不同的化学元素在特定的光谱谱段有脉冲响应特性，可通过光谱相机清晰地定位物质边界，能显著提升姿态估计第一阶段的检测和分割精度。光谱图像的检测和分割算法思路与可见光图像相似，最主要的问题在于样本数据较少，且分布不均匀，业界没有大规模数据集可用于网络训练。目前解决这一问题的主要方法是小样本学习\cite{lys2022targetDetection, shi2020HyperspectralTargetDetection}或加强注意力机制\cite{shi2020hyperspectralROI}。
 
 % 此处描述 RGB, Depth, 和光谱数据融合的国内外现状
-对于同一场景下的可见光、深度图和光谱图像的融合处理，目前没有可直接借鉴的方法，但多传感器融合的方法在遥感影像处理和自动驾驶领域\cite{Feng_2021}中都有相关研究。一种朴素的融合方法是决策级融合，对不同的输入数据分别提取特征图\cite{pang2020clocs}，构建基于统计的特征加权组合模块，对不同输入分支提取的特征赋予不同的权重，在输出层进行决策级融合\cite{li2022sal}。这种方法既可以区分不同输入源特征在分类器中的重要性，又可以避免特征提取网络学习本身对分类结果的干扰。但它没有考虑多源数据特征间的差异性与互补性。另一种思路是特征级融合，先前的研究有两种模式，其中一种模式以Xie等人提出的Pi-rcnn\cite{xie2020pircnn}和Vora等人提出的Pointpainting\cite{vora2020pointpainting}为代表，将三维点云中的每一个点投影到二维像平面，然后通过双线性插值获得对应二维图像特征。这种方式虽然在像素级进行了细粒度的特征聚合，但是该操作过程由于融合点的稀疏性而失去二维图像密集特征的优势，即破坏了二维图像特征的语义一致性。另一种方式以Chen等人提出的MV3D\cite{chen2017multi}为代表，利用3D目标检测器分别获取点云数据和二维RGB图像中初始建议框，然后融合两种模态感兴趣区域特征。这种方式通过实例级融合保持了语义的一致性，但是利用3D目标检测器获取初始建议框的阶段所提取的特征相对粗糙，且缺失二维图像中的稠密信息表征。
+对于同一场景下的可见光、深度图和光谱图像的融合处理，目前没有可直接借鉴的方法，但多传感器融合的方法在遥感影像处理和自动驾驶领域\cite{feng2021}中都有相关研究。一种朴素的融合方法是决策级融合，对不同的输入数据分别提取特征图\cite{pang2020clocs}，构建基于统计的特征加权组合模块，对不同输入分支提取的特征赋予不同的权重，在输出层进行决策级融合\cite{li2022sal}。这种方法既可以区分不同输入源特征在分类器中的重要性，又可以避免特征提取网络学习本身对分类结果的干扰。但它没有考虑多源数据特征间的差异性与互补性。另一种思路是特征级融合，先前的研究有两种模式，其中一种模式以Xie等人提出的Pi-rcnn\cite{xie2020pircnn}和Vora等人提出的Pointpainting\cite{vora2020pointpainting}为代表，将三维点云中的每一个点投影到二维像平面，然后通过双线性插值获得对应二维图像特征。这种方式虽然在像素级进行了细粒度的特征聚合，但是该操作过程由于融合点的稀疏性而失去二维图像密集特征的优势，即破坏了二维图像特征的语义一致性。另一种方式以Chen等人提出的MV3D\cite{chen2017multi}为代表，利用3D目标检测器分别获取点云数据和二维RGB图像中初始建议框，然后融合两种模态感兴趣区域特征。这种方式通过实例级融合保持了语义的一致性，但是利用3D目标检测器获取初始建议框的阶段所提取的特征相对粗糙，且缺失二维图像中的稠密信息表征。
 
 % 在对不同输入源的数据进行特征抽取时，增加三维交叉注意力模块\cite{li2022triplet}增强多源数据的互补空间特征，并进行逐层特征融合。这种方法在自动驾驶领域\cite{huang2020epnet}取得了不错的结果。\note{补充特征级融合的问题}先前的研究有两种模式：一是将三维点云中的每一个点投影到二维的像平面，然后通过双线性插值获得对应的二维图像特征。这种方式虽然在像素级进行了细粒度的特征聚合，但是该操作过程由于融合点的稀疏性而失去光谱图像密集特征的优势，即破坏了二维光谱图像特征的语义一致性。另一种方式是利用3D目标检测器分别获取点云数据和光谱图像中初始建议框，然后融合两种模态感兴趣区域特征。这种方式通过实例级融合保持了语义的一致性，但是利用3D目标检测器获取初始建议框的阶段提取的特征相对粗糙且缺失光谱图像中的稠密信息表征。
 
@@ -160,7 +160,7 @@
     }\label{fig:scene_demo}
 \end{figure}
 
-本课题的整体研究框架如\ref{fig:research_solution}所示。前期我们将着重方法研究，在现有的?? RGB-D 6D姿态数据集上通过手工标记增加目标物体的光谱响应图，生成用于算法思路验证的多模态数据集。??数据集包含目标场景的可见光图像和深度图，目标检测和分割的真值，以及6D姿态估计的真值，手工标记光谱响应图之后，可用于支撑本课题的前期算法验证。本课题的研究内容之间有相对顺序的关系，在后续阶段算法未改进时，将用现有的SOTA方法完成整体算法流程的计算。算法在模拟数据集上完成验证后，我们将在真实装配场景中验证算法的精度，并迭代更新。
+本课题的整体研究框架如\ref{fig:research_solution}所示。前期我们将着重方法研究，在现有的T-LESS\cite{tless2017}和ITODD\cite{itodd2017} RGB-D 6D姿态数据集上通过手工标记增加目标物体的光谱响应图，生成用于算法思路验证的多模态数据集。T-LESS和ITODD数据集包含目标场景的可见光图像和深度图，目标检测和分割的真值，以及6D姿态估计的真值，手工标记光谱响应图之后，可用于支撑本课题的前期算法验证。本课题的研究内容之间有相对顺序的关系，在后续阶段算法未改进时，将用现有的SOTA方法完成整体算法流程的计算。算法在模拟数据集上完成验证后，我们将在真实装配场景中验证算法的精度，并迭代更新。
 
 \begin{figure}[h]
     \centering
@@ -352,10 +352,10 @@ j \neq k}}^N \max \left(0, \Delta -\left|E_k-E_j\right|\right)
 
 在局部特征提取模块中，我们将使用PointNet++对每个簇中的点特征提取，并且不同簇的特征提取网络之间共享权重。PointNet++能够以分层的方式处理空间中的一组点集，采用类似于CNN的结构，能够在较小的邻域中提取捕捉精细的局部特征，并进一步分组和处理以产生更高级别的特征。
 
-在分组特征聚合模块中，每个簇中的点是无序的，但是簇的顺序是给定的。为了表征每个簇之间的顺序，我们将设计一种对簇间顺序不敏感的特征聚合方法。这一计算理论上可以使用类似于PointNet的架构来直接对特征进行聚合，但PointNet是为了提供对刚性转换的不变性特征，这与本课题的问题假设不相符。为此，对于给定的$n$个簇，每个簇包含$m$个候选关键点$\left\{\mathbf{u}_{i,k}\right\}, 1 \leq i \leq n, 1 \leq k \leq m$，我们定义集合函数$\mathcal{F}: \mathcal{X} \rightarrow \mathbb{R}^{n × D}$，它将对应的关键点$\left\{\mathbf{u}_{i,k}\right\}_{1 \leq k \leq m}$映射到$n$个D维矢量上。然后将所有的矢量：
+在分组特征聚合模块中，每个簇中的点是无序的，但是簇的顺序是给定的。为了表征每个簇之间的顺序，我们将设计一种对簇间顺序不敏感的特征聚合方法。这一计算理论上可以使用类似于PointNet的架构来直接对特征进行聚合，但PointNet是为了提供对刚性转换的不变性特征，这与本课题的问题假设不相符。为此，对于给定的$n$个簇，每个簇包含$m$个候选关键点$\left\{\mathbf{u}_{i,k}\right\}, 1 \leq i \leq n, 1 \leq k \leq m$，我们定义集合函数$\mathcal{F}: \mathcal{X} \rightarrow \mathbb{R}^{n × D}$，它将$n$个簇中$m$个关键点$\left\{\mathbf{u}_{i,k}\right\}_{1 \leq k \leq m}$按簇分别映射到$n$个D维矢量上。然后将所有的矢量按顺序连接得到：
 
 \begin{equation}
-Concat\left(\underset{k}{\max}\left(\left\{\mathbf{f}_{1,k}\right\}\right), \underset{k}{\max}\left(\left\{\mathbf{f}_{2,k}\right\}\right), \c, \underset{k}{\max}\left(\left\{\mathbf{f}_{n,k}\right\}\right)\right)
+Concat\left(\underset{k}{\max}\left(\left\{\mathbf{f}_{1,k}\right\}\right), \underset{k}{\max}\left(\left\{\mathbf{f}_{2,k}\right\}\right), ...\c, \underset{k}{\max}\left(\left\{\mathbf{f}_{n,k}\right\}\right)\right)
 \end{equation}
 
 其中，$\mathbf{f}_{i,k}$是通过上述PointNet++获得的$\left\{\mathbf{u}_{i,k}\right\}$的D维特征表示，$\max()$是最大池化操作，$Concat()$是连接操作。理论上，我们可以采用类似于PointNet中使用的单个最大池化操作实现所有点的排列不变性。然而，这忽略了我们所固定的簇的顺序。相比之下，以上等式考虑了我们预定义的簇的顺序。
@@ -363,18 +363,16 @@ Concat\left(\underset{k}{\max}\left(\left\{\mathbf{f}_{1,k}\right\}\right), \und
 最后的全局推理模块会将融合了全局特征的$n$个D维向量传递给MLP层，并输出所有的融合关键点。
 
 % 可行性分析
-一阶段目标检测器通常使用特征金字塔输出多种比例的特征图，将特征图中的特征向量作为训练样本进行分类和回归处理。在检测训练期间，需要为每个注释的目标实例定义正样本和负样本，并使用正样本回归目标实例的边界框参数。因此这一框架的关键是在训练期间有效的选择正样本。本课题前期研究中，申请人团队使用典型的6D目标位姿数据集(YCB-V)将所提出的刚性感知策略与基准策略进行了对比。图~\ref{fig:detecting_rigid_objects}显示了两种策略的采样方式及检测结果。图(a)是基准采样策略，该策略选择目标中心周围的正样本（绿色单元），而此处受到了场景元素遮挡。图(b)是实验的可见性引导的采样策略，该策略丢弃了遮挡区域，并且使网络由所有可见部分的监督。采样概率由不同深浅的绿色表示。图(c)显示了我们实验的方法（绿框）相比基准策略~\cite{Zhang2020}（红框）可以产生更准确的检测结果。本课题将把该方法从2D边界框回归拓展到3D目标检测领域，理论上是可行的。
+一阶段目标检测器通常使用特征金字塔输出多种比例的特征图，将特征图中的特征向量作为训练样本进行分类和回归处理。在检测训练期间，需要为每个注释的目标实例定义正样本和负样本，并使用正样本回归目标实例的边界框参数。因此这一框架的关键是在训练期间有效的选择正样本。本课题前期研究中，申请人团队使用典型的6D目标位姿数据集(YCB-V)将所提出的刚性感知策略与基准策略进行了对比。图~\ref{fig:detection_test_results}显示了两种策略的采样方式及检测结果。图(a)是基准采样策略，该策略选择目标中心周围的正样本（绿色单元），而此处受到了场景元素遮挡。图(b)是实验的可见性引导的采样策略，该策略丢弃了遮挡区域，并且使网络由所有可见部分的监督。采样概率由不同深浅的绿色表示。图(c)显示了我们实验的方法（绿框）相比基准策略~\cite{Zhang2020}（红框）可以产生更准确的检测结果。本课题将把该方法从2D边界框回归拓展到3D目标检测领域，理论上是可行的。
 
 \begin{figure}[h]
 	\centering
-    \begin{overpic}[width=0.8\columnwidth]{detecting_rigid_objects.png}
+    \begin{overpic}[width=0.8\columnwidth]{detection_test_results.jpg}
     \end{overpic}
     \caption{杂乱场景中的刚性物体检测算法验证结果。(a)是基准采样策略，该策略选择目标中心周围的正样本（绿色单元），而此处受到了场景元素遮挡。(b)是实验的可见性引导的采样策略，该策略丢弃了遮挡区域，并且使网络由所有可见部分的监督。采样概率由不同深浅的绿色表示。(c)为我们实验的方法（绿框）相比基准策略~\cite{Zhang2020}（红框）可以产生更准确的检测结果。}
-    \label{fig:detecting_rigid_objects}
+    \label{fig:detection_test_results}
 \end{figure}
 
-
-\subsection{---SR修改分割线---}
 
 \iffalse
 \subsubsection{C. 基于工件CAD模型几何特征引导的6D姿态修正网络研究方案及可行性分析}
@@ -382,143 +380,89 @@ Concat\left(\underset{k}{\max}\left(\left\{\mathbf{f}_{1,k}\right\}\right), \und
 
 \textbf{C. 基于工件CAD模型几何特征引导的6D姿态修正网络研究方案及可行性分析}
 
+本部分着重研究基于几何特征引导的物体6D姿态修正框架。结合多源融合特征，通过物体的3D几何约束引入物体的几何特征，对不精确的6D姿态进行修正。目前基于2D匹配的6D姿态估计修正方案，只利用光流估计网络，根据GRU更新后的当前状态信息估计修正之后的2D密集匹配，这一范式主要依赖于物体的纹理特征，未考虑几何特征，因而不适用于弱纹理的目标。同时，当前方法在整个二维图像空间中搜索像素的匹配点，然而对于6D姿态估计来说，匹配点应该同样严格反映物体的形状，也就是满足3D几何约束。在无3D几何约束下进行搜索时搜索空间异常大，通过使用3D几何约束，我们可以将搜索空间限制在当前3D形状的所有二维投影点，进而缩小搜索空间。
 
+在本课题研究中，我们将尝试使用额外的姿态估计网络，该网络的输入为修正之后的2D密集匹配与GRU的内部状态信息，通过整合全局和局部的对应关系来预测一个反映当前运动信息的相对姿态。网络在每次迭代中预测一个相对姿态，通过累加得到最终的修正结果。我们将研究端到端的网络，网络可以隐式感知到物体的3D几何形状，通过基于物体形状的损失函数直接优化6D姿态。
+
+基于上述考虑，本方案中6D姿态修正部分的网络结构将如图~\ref{fig:geo_guided_6D_refine}所示。
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.9\linewidth]{geo_guided_6d_refine.jpg}
+    \includegraphics[width=\linewidth]{geo_guided_6d_refine.jpg}
     \caption{基于几何特征引导的6D姿态修正框架}
     \label{fig:geo_guided_6D_refine}
 \end{figure}
-
-本方案的关键问题在于对针对目标物体估计得到的不精确的6D姿态进行修正。目前基于2D匹配的6D姿态估计修正方案主要依赖于物体的纹理特征进行，没有考虑到物体的几何特征，因而不适用于弱纹理的目标。同时，当前方法在整个二维图像空间中搜索像素的匹配点，然而对于6D姿态估计来说，匹配点应该同样严格反映物体的形状，也就是满足3D几何约束。在无3D几何约束下进行搜索，搜索空间异常大，然而通过使用3D几何约束，我们可以将搜索空间限制在当前3D形状的所有二维投影点，进而缩小搜索空间。因此本方案提出基于几何特征引导的物体6D姿态修正框架，结合多源融合特征，通过物体的3D几何约束，引入物体的几何特征。
-
-
-
-目前的6D姿态修正方法只利用一个光流估计网络来根据GRU更新后的当前状态信息来估计修正之后的2D密集匹配。然而，如前所述，这一范式只考虑到了物体的纹理特征，不适用于本方案的研究目标。
-本方案提出通过使用额外的姿态估计网络，该网络的输入为修正之后的2D密集匹配与GRU的内部状态信息，并通过整合全局的局部对应关系来预测一个反映当前运动信息的相对姿态。
-基于此，我们在每次迭代中预测一个相对姿态，通过累加得到最终的修正结果，我们的网络是端到端的，通过基于物体形状的损失函数来直接优化6D姿态，网络可以隐式的感知到物体的3D几何形状。
-
-
-本方案的核心贡献是通过姿态引导光流来进行相关性查找。如图~\ref{fig:geo_guided_6D_refine}所示，光流估计网络得到的光流无法反映物体的形状，有很严重的畸变。因此我们提出通过能够严格反映物体形状的光流来进行相关性查找，进而在训练过程中，使网络感知到物体的3D几何形状。给定渲染图像的姿态以及当前估计的6D姿态，我们可以通过几何计算得到初始渲染图像中的每个像素在当前估计6D姿态下的对应点，也就是图~\ref{fig:geo_guided_6D_refine}中的姿态引导光流，能够严格反映物体的形状。同时，这种全局感知的方式能够修正一些不可靠的光流估计，进而得到与全局姿态相符合的对应点，进而使得这些像素迅速逃离局部解，缩小匹配时的搜索空间。
-
-\textbf{整体框架}
-
-本方案已经在基于光流的框架验证了方案的可行性。
-首先利用目前成熟的 6D 姿态估计网络预测得到一个不精确的初始6D 姿态$P_0$，接下来利用该姿态对目标进行渲染和定位。
-输入一张目标RGB图像与在初始姿态$P_0$下渲染的目标模型图像，本方案首先利用一个孪生卷积神经网络来对该两张图像进行特征提取，分别得到维度为$H\times W$的特征图$g_1$和$g_2$。
-之后根据提取的特征向量构建4D相关体$C$，$C$的维度为$H\times W \times H \times W$，其中
-\begin{equation}
-    C_{ijkl} = g^1_{ij} \cdot g^2_{kl}
-\end{equation}
-$C$表示了$g_1$中所有特征向量与$g_2$中所有特征向量的相关性。
-接下来，本方案在每次迭代中同时估计残差光流$\Delta F$与残差姿态$\Delta P$，并进行估计姿态的更新，即
-\begin{equation}
-    P_i = \Delta P_i \otimes P_{i-1}
-\end{equation}
-其中，本方案利用一个单独的姿态估计网络$f_{\theta}$来通过估计的残差光流进行残差姿态的回归，即
-\begin{equation}
-    \Delta P_i = f_{\theta}(\Delta F)
-\end{equation}
-$f_\theta$由若干个卷积层与全连接层组成，最终由两个支路分别预测旋转$\Delta R$与平移$\Delta t$。
-
-
-残差光流估计的核心操作是通过相关性查找在4D相关体中在当前估计的2D密集匹配以及其周围邻域中进行索引，进而确定在当前估计的2D密集匹配下的相关性。
-建立在深度特征的连续性假设上，朝着相关性更高的方向移动估计的对应点更可能找到目标对应点，因此通过在当前估计的光流基础上，估计一个偏移，使得估计对应点朝着相关性更高的方向移动。
-本方案进一步借助于GRU，将相关性查找得到的相关性特征输入GRU中，以更新GRU内部的隐状态，进而利用GRU更新后的隐状态来进行残差光流的预测。
-GRU被证明在序列任务建模中发挥着良好的作用，通过引入门控机制，选择性地保留或者舍弃先前的状态信息。
-
-在初始方案的基础上，本方案扩展为基于RGB-D的数据输入场景下，提出基于场景流的6D姿态修正框架光流与场景流的区别在于，光流估计平面的二维运动，即估计源图像中每个像素在目标图像中的2D对应点。而场景流估计物体的三维运动，即估计源RGB-D图像中每个像素在目标图像中的3D对应点。
-由于我们使用渲染技术合成初始姿态下的目标物体，相应的深度图$D$是可以得到的，因此可以通过几何推理的方式得到源图像中姿态$P_0$的物体到预测姿态$\hat{P}$下物体的场景流。
-
-对于渲染图像中的一个像素$(u_1,v_1)$以及其相应的深度$d_1$，在已知渲染姿态以及相机内参的情况下，利用针孔相机模型反投影函数$\pi^{-1}$将其反投影到物体的CAD模型中，得到其对应的3D点$p=(x,y,z)$，
-并将点$p$在预测姿态下$\hat{P}$进行投影即可得到其在$\hat{P}$下的对应点$(u_2,v_2)$以及其相应的深度$d_2$。
-上述过程可以被表述为
-\begin{equation}
-    (u_2,v_2,d_2) = \pi(\pi^{-1}(u_1, v_1,d_1, k,P_0), k, \hat{p})
-\end{equation}
-其中$\pi$为针孔相机投影模型，即
-
-\begin{equation}
-    \begin{aligned}
-    d
-    \begin{bmatrix}
-    u \\
-    v \\
-    1 \\
-    \end{bmatrix}
-    =K(Rp+t),
-    \end{aligned}
-\end{equation}
-因此，场景流可以被表示为$\Delta u = u_2 - u_1, \Delta v = v_2 - v_1, \Delta d = d_2 - d_1$。
-该场景流同样能够严格地反映物体的形状，进而将三维几何约束引入匹配过程，减小匹配时的搜索空间。
-初始方案简单地使用光流进行相对姿态的回归，抛弃掉深度变化这一分量，仅从二维层面进行三维特征的回归，尽管可以通过数据驱动的学习方式将二维光流映射到三维空间，然而这是病态的，不利于网络的学习。
-基于此，本方案进一步提出基于场景流的几何特征引导框架。在每次迭代中，网络回归残差场景流与残差姿态，将三维场景流进行投影到二维平面，得到形状约束的光流，利用目前成熟的二维相关性查找操作，来为残差场景流的估计服务。
-
-
-
-
-
-
-\textbf{提取-匹配范式}
-
-在光流估计场景下，更多地依赖于图像的浅层特征进行匹配。
-然而，在本方案使用的场景下，不同的物体的往往呈现出不同的纹理与几何特征，网络需要更强的特征提取能力来提取到物体无关的特征，来为后续的匹配过程服务。
-另外，初始方案中使用的编码器较为简单，提取出的特征不具有较强的表达性，这导致匹配过程的效率较低，往往依赖于多次迭代来进行优化，导致网络的运行速度较慢。
-在本方案中，我们提出一种利用视觉注意力机制强大的特征提取能力和灵活的特征建模能力来提取得到足够具有表达性的特征。
-
-
-注意力机制是一种基于查询$Q$、键$K$和值$V$向量的机制，通过计算查询向量和键向量之间的点积，得到每个值向量的注意力权重分布，从而实现信息传递。
-具体地，注意力机制表示为：
-\begin{equation}
-    Attention(Q, K, V) = softmax(QK^T)V
-\end{equation}
-其中，softmax表示归一化函数，输出向量是值向量的加权和，其权重由相似度得分确定，从而实现了信息的选择性提取。
-对于自注意力机制，对于输入的特征分别进行线性投影，得到$Q$，$K$和$V$。
-对于交叉注意力机制，输入为两幅图像的特征$X_1$和$X_2$，对于$X_1$进行投影得到$Q$，对于$X_2$进行投影得到$K$和$V$。
-
-本方案通过结合自注意力机制和交叉注意力机制，自注意力机制在每张图像内部通过特征交互进行特征增强，而交叉注意力机制在两张图像间进行特征交互，以获取两张图像的相关信息。
-具体地说，自注意力机制通过计算每个位置的特征与其他位置特征的相似度来调整该位置的特征表示，以此实现特征增强。而交叉注意力机制则利用两张图像的相似性来加强它们之间的特征表示，从而实现后续更好的匹配。
+% 自注意力机制和交叉注意力机制
+% 提取-匹配范式
+经3D检测算法输出的目标图像和模型在初始位姿下的渲染图像首先进入注意力机制模块。在这一模块中，我们将研究如何利用视觉注意力机制强大的特征提取能力和灵活的特征建模能力来提取得到足够具有表达性的特征。注意力机制是为后续光流估计服务的，但本课题场景与常规光流估计有所不同。一方面，常规光流估计算法依赖图像的浅层特征进行匹配，然而在本课题场景中，网络需要更强的特征提取能力来提取到物体无关的特征，为后续的匹配过程服务。另一方面，常规方案中使用的编码器较为简单，提取出的特征表达性较弱，这导致匹配过程的效率较低，需依赖于多次迭代来进行优化，网络的运行速度较慢。
+本方案将结合自注意力机制和交叉注意力机制，如图~\ref{fig:geo_guided_6D_refine}中的中间虚线框所示。
+自注意力机制中，对于输入的特征分别进行线性投影，得到$Q$，$K$和$V$，通过计算每个位置的特征与其他位置特征的相似度来调整该位置的特征表示，以此实现特征增强。
+交叉注意力机制中，输入为两幅图像的特征$X_1$和$X_2$，对$X_1$进行投影得到$Q$，对于$X_2$进行投影得到$K$和$V$，利用两张图像的相似性来加强它们之间的特征表示，从而实现后续更好的匹配。
 这种基于注意力机制的特征增强方式不仅可以提高特征的表达能力，还可以在匹配过程中降低噪声干扰和错误匹配的概率，进一步提高了匹配的精度和鲁棒性。
 
+% 相关性查找
+完成注意力机制的特征增强后，我们将通过姿态引导光流进行相关性查找。光流估计网络得到的光流无法反映物体的形状，有很严重的畸变。本课题我们将研究能够通过严格反映物体形状的光流来进行相关性查找的方法，在训练过程中使网络感知到物体的3D几何形状。给定渲染图像的姿态以及当前估计的6D姿态，我们将尝试通过几何计算得到初始渲染图像中的每个像素在当前估计6D姿态下的对应点，这些对应点能够严格反映物体的形状。同时，这种全局感知的方式将能够修正一些不可靠的光流估计，进而得到与全局姿态相符合的对应点，使得这些像素迅速逃离局部解，缩小匹配时的搜索空间。
+
+% 相关性查找
+% 残差光流估计的核心操作是通过相关性查找在4D相关体中在当前估计的2D密集匹配以及其周围邻域中进行索引，进而确定在当前估计的2D密集匹配下的相关性。建立在深度特征的连续性假设上，通过在当前估计的光流基础上估计一个偏移，使得估计对应点朝着相关性更高的方向移动，估计的对应点更可能找到目标对应点。本方案考虑引入GRU模块，GRU在序列任务建模中发挥着良好的作用，通过引入门控机制，选择性地保留或者舍弃先前的状态信息。方案研究中，我们将相关性查找得到的相关性特征进一步输入GRU中，更新GRU内部的隐状态，进而利用GRU更新后的隐状态来进行残差光流的预测。
 
 
-
-
-\textbf{融合特征引导GRU}
-
-本方案引入多源融合特征，利用融合特征进行GRU状态的更新。GRU的输入为相关性特征与融合特征，本方案将相关性特征与融合特征进行拼接，并将拼接后的特征输入到GRU进行状态的更新。相较于传统的单一特征，融合特征能够提供更丰富全面的信息，从而更好地描述
-当前的物体，改善GRU的隐状态表示，为后续的场景流回归与姿态回归模型提供支持，进而提升姿态估计精度与效率。GRU的迭代方式可以表示为
-\begin{equation}
-    \begin{aligned}
-        z_t &= \sigma(\mathrm{Conv}_{3\times3}([h_{t-1}, x_t], W_z)) \\
-        r_t &= \sigma(\mathrm{Conv}_{3\times3}([h_{t-1}, x_t], W_r)) \\
-        \hat{h}_t &= \mathrm{tanh}(\mathrm{Conv}_{3\times3}([r_t \otimes h_{t-1}, x_t], W_h)) \\
-        h_t &= (1 - z_t)\otimes h_{t-1} + z_t \otimes \hat{h}_t
-    \end{aligned}
-\end{equation}
+% 融合特征引导GRU
+相关性查找后输出的特征与将与前级输入的融合特征进行拼接，并将拼接后的特征输入到GRU进行状态的更新。相较于传统的单一特征，融合特征能够提供更丰富全面的信息，从而更好地描述当前的物体，改善GRU的隐状态表示，为后续的场景流回归与姿态回归模型提供支持。GRU的迭代方式可以表示为
+\begin{gather}
+        z_t = \sigma(\mathrm{Conv}_{3\times3}([h_{t-1}, x_t], W_z)) \\
+        r_t = \sigma(\mathrm{Conv}_{3\times3}([h_{t-1}, x_t], W_r)) \\
+        \hat{h}_t = \mathrm{tanh}(\mathrm{Conv}_{3\times3}([r_t \otimes h_{t-1}, x_t], W_h)) \\
+        h_t = (1 - z_t)\otimes h_{t-1} + z_t \otimes \hat{h}_t
+\end{gather}
 其中$h_t$即为更新后的隐状态，用来进行后续的场景流回归，$x_t$为相关性特征与融合特征的拼接。
 GRU使用三个子网络分别建模遗忘信息的程度$z_t$、更新信息的程度$r_t$以及当前时刻的状态信息$\hat{h}_t$。
 通过这三个子网络的交互，GRU可以有效地对迭代更新任务进行建模。
 
-\textbf{姿态与场景流联合估计}
+% 形状约束场景流
+对于融合特征引导GRU之后的特征图，我们将研究基于场景流的6D姿态修正框架。现有的方案大都使用光流进行相对姿态的回归，忽略了深度变化这一分量，仅从二维层面进行三维特征的回归。尽管可以通过数据驱动的学习方式隐式地将二维光流映射到三维空间，但这是病态的，不利于网络的学习。场景流与光流有所区别，光流估计平面的二维运动，即估计源图像中每个像素在目标图像中的2D对应点。而场景流估计物体的三维运动，即估计源RGB-D图像中每个像素在目标图像中的3D对应点。本方案将尝试基于场景流的几何特征引导框架。在每次迭代中，网络回归残差场景流与残差姿态，将三维场景流进行投影到二维平面，得到形状约束的光流，利用目前成熟的二维相关性查找操作来为残差场景流的估计服务。
+更具体地，由于我们使用渲染技术合成初始姿态下的目标物体，相应的深度图$D$是可以得到的，因此可以通过几何推理的方式得到源图像中姿态$P_0$的物体到预测姿态$\hat{P}$下物体的场景流。对于渲染图像中的一个像素$(u_1,v_1)$以及其相应的深度$d_1$，在已知渲染姿态以及相机内参的情况下，利用针孔相机模型反投影函数$\pi^{-1}$将其反投影到物体的CAD模型中，得到其对应的3D点$p=(x,y,z)$，并将点$p$在预测姿态$\hat{P}$下进行投影即可得到其在$\hat{p}$下的对应点$(u_2,v_2)$及其相应的深度$d_2$。
+上述过程可以被表述为
+\begin{equation}
+    (u_2,v_2,d_2) = \pi(\pi^{-1}(u_1, v_1,d_1, k, P_0), k, \hat{p})
+\end{equation}
+其中$\pi$为针孔相机投影模型，即$d[u~v~1]^T=K(Rp+t)$。因此，场景流可以被表示为$\Delta u = u_2 - u_1, \Delta v = v_2 - v_1, \Delta d = d_2 - d_1$。
+该场景流同样能够严格地反映物体的形状，进而将三维几何约束引入匹配过程，减小匹配时的搜索空间。
 
-我们的方案使用经典的四元数作为旋转表示，并采用DeepIM中提出的分离相对姿态表示。
-在联合优化光流和姿态时，优化姿态时的梯度反向传播对光流的优化也有益处。进一步修正光流可以提高姿态估计的精度，因此，良好的姿态表示在我们的框架中至关重要。
-相对于绝对姿态，相对姿态的表示对网络的学习具有更高的要求，不合理的姿态表示会在网络的优化过程中引入不必要的困难。其中最重要的问题是坐标系的选取。DeepIM提出使用相机下物体的中心作为坐标系的中心，并使用与相机系的坐标轴平行的轴作为坐标系的中心。在这种表示下，旋转和平移得以解耦，适合网络的优化。
-
+% 姿态与场景流联合估计
+图~\ref{fig:geo_guided_6D_refine}的姿态修正研究框架中，最后一部分我们仍将使用经典的四元数作为旋转表示，并采用DeepIM\cite{li2018deepim}中提出的分离相对姿态表示。在联合优化光流和姿态时，优化姿态时的梯度反向传播对光流的优化也有益处。进一步修正光流可以提高姿态估计的精度，因此，良好的姿态表示在我们的框架中至关重要。
+相对姿态的表示对网络的学习比绝对姿态有更高的要求，不合理的姿态表示会在网络的优化过程中引入不必要的困难。其中最重要的问题是坐标系的选取。DeepIM提出使用相机下物体的中心作为坐标系的中心，并使用与相机系的坐标轴平行的轴作为坐标系的中心，具体表示如\ref{eq:relative_pose}所示
 \begin{equation}
     \begin{aligned}
     \Delta x & = f_x(t_x^{i+1}/t_z^{i+1} - t_x^i/t_z^i)\\
     \Delta y & = f_y(t_y^{i+1}/t_z^{i+1} - t_y^i/t_z^i) \\
     \Delta z & = log(t_z^i/t_z^{i+1})
+    \label{eq:relative_pose}
 \end{aligned}
 \end{equation}
-其中，$f_x$与$f_y$为相机的焦距。在这种表示下，$v_x$与$v_y$被定义在图像平面上的位移，而$v_z$被定义为相对尺度的变化，网络可以从两张图像中物体的相对位置与大小推理得到。
+其中，$f_x$与$f_y$为相机的焦距。在这种表示下，$v_x$与$v_y$被定义在图像平面上的位移，而$v_z$被定义为相对尺度的变化，网络可以从两张图像中物体的相对位置与大小推理得到，旋转和平移得以解耦，适合网络的优化。然而，四元数旋转表示在欧几里得空间中是不连续的，不利于神经网络的回归。本课题研究中将尝试将相对三维旋转映射到高维空间，以得到一个连续的相对旋转表示。连续的目标函数可以提供更加稳定的梯度，进而加快相对姿态优化的收敛。
 
-然而，四元数旋转表示在欧几里得空间中是不连续的，不利于神经网络的回归。本方案提出将相对三维旋转映射到高维空间，以得到一个连续的相对旋转表示。
-连续的目标函数可以提供更加稳定的梯度，进而加快相对姿态优化的收敛。
+
+\subsection{---SR修改分割线---}
+
+
     
-
+% 可行性分析
+该位姿修正方案已在基于光流的算法框架中初步验证了可行性。实验过程中，我们首先利用目前成熟的 6D 姿态估计网络预测得到一个不精确的初始6D 姿态$P_0$，之后利用该姿态对目标进行渲染和定位。
+输入一张目标RGB图像与在初始姿态$P_0$下渲染的目标模型图像，实验方案首先利用一个孪生卷积神经网络来对该两张图像进行特征提取，分别得到维度为$H\times W$的特征图$g_1$和$g_2$。
+之后根据提取的特征向量构建4D相关体$C$，$C$的维度为$H\times W \times H \times W$，其中
+\begin{equation}
+    C_{ijkl} = g^1_{ij} \cdot g^2_{kl}
+\end{equation}
+$C$表示了$g_1$中所有特征向量与$g_2$中所有特征向量的相关性。
+然后，本方案在每次迭代中同时估计残差光流$\Delta F$与残差姿态$\Delta P$，并进行估计姿态的更新，即
+\begin{equation}
+    P_i = \Delta P_i \otimes P_{i-1}
+\end{equation}
+其中，我们利用一个单独的姿态估计网络$f_{\theta}$通过估计的残差光流进行残差姿态的回归，即
+\begin{equation}
+    \Delta P_i = f_{\theta}(\Delta F)
+\end{equation}
+$f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分别预测旋转$\Delta R$与平移$\Delta t$。
 
 
 
@@ -530,6 +474,7 @@ GRU使用三个子网络分别建模遗忘信息的程度$z_t$、更新信息的
 
 \myPara{3D目标检测的特色与创新之处}
 引入刚性感知检测方法，提出了一种新颖的基于距离函数的距离变换图来取代2D检测的图像掩膜标注以及3D点云的逐点分割掩膜，并利用距离变换图指导网络在训练期间仅由目标可见部分的正特征单元监督而不受遮挡部分的干扰；引入2D候选引导的3D候选融合策略来对3D检测候选置信度进行处理，并且设计了融合候选局部预测的方法避免非最大抑制方法对正确检测候选的抑制，以产生更准确的检测结果。
+
 \myPara{基于目标几何特征引导的6D位姿估计的特色与创新之处}
 通过可微相对姿态求解层逐步优化估计的6D姿态，并将几何信息引入特征匹配过程，使得匹配得到的特征与物体的几何形状一致。进一步显式地使用深度神经网络编码几何特征作为姿态修正网络的参考信息。
 
@@ -568,15 +513,18 @@ GRU使用三个子网络分别建模遗忘信息的程度$z_t$、更新信息的
 \myPara{位姿估计方面}申请人团队2023年录用了两篇IEEE国际顶会CVPR论文，其中一篇为“Yang Hai, Rui Song, Jiaojiao Li, Mathieu Salzmann, Yinlin Hu. Rigidity-Aware Detection for 6D Object Pose Estimation. IEEE CVPR2023 \#2298”，另一篇为“Yang Hai, Rui Song, Jiaojiao Li, Yinlin Hu. Shape-Constraint Recurrent Flow for 6D Object Pose Estimation. IEEE CVPR2023 \#2307”。
 
 \myPara{光流估计方面}
-3个光流算法、开源代码
+% 3个光流算法、开源代码
+申请人团队在相关领域国际高水平会议和期刊上发表了3篇SCI论文，
+其中一篇“Hu, Yinlin and Song, Rui and Li, Yunsong. Efficient Coarse-To-Fine PatchMatch for Large Displacement Optical Flow”发表在CVPR2016;一篇“Hu, Yinlin and Li, Yunsong and Song, Rui. Robust Interpolation of Correspondences for Large Displacement Optical Flow”发表在CVPR2017;一篇“Hu, Yinlin and Song, Rui and Li, Yunsong and Rao, Peng and Wang, Yangli. Highly accurate optical flow estimation on superpixel tree ”发表在国际学术期刊《Image and Vision Computing》上。另外，申请人团队CVPR2017论文所提出的大位移光流的鲁棒匹配插值算法成果被工业界图像处理和计算机视觉开发的事实标准库OpenCV采纳。
 
-\myPara{深度图的点云处理方面}申请人团队在点云分类、语义分割、点云补全等点云处理主流任务上开展研究，在相关领域国际顶会与核心期刊上发表高水平论文四篇，其中申请人团队2022年在相关领域国际高水平期刊上发表SCI论文三篇，其中一篇为“Fengda Hao, Jiaojiao Li*, Rui Song*, Yunsong Li and Kailang Cao. Structure-Aware Graph Convolution Network for Point Cloud Parsing.”发表在计算机视觉领域中科院一区期刊《IEEE Transactions on Multimedia》上；一篇为“Fengda Hao, Rui Song*, JiaoJiao Li*, Kailang Cao, Yunsong Li. Cascaded Geometric Feature Modulation Network for Point Cloud Processing.”发表在计算机学科国际学术期刊《Neurocomputing》上，一篇为“Fengda Hao, Jiaojiao Li, Rui Song, Yunsong Li and Kailang Cao. Mixed Feature Prediction on Boundary Learning for Point Cloud Semantic Segmentation.”发表在遥感领域权威期刊《Remote Sensing》上。另外，申请人团队在国际计算机多媒体领域顶级会议ACM Multimedia 2021上发表题为“ASFM-Net: Asymmetrical Siamese Feature Matching Network for Point Completion”的研究成果。该项成果在2021年斯坦福大学发布的Completion3D点云补全任务榜单中排列第一。
+\myPara{深度图的点云处理方面}
+申请人团队在点云分类、语义分割、点云补全等点云处理主流任务上开展研究，在相关领域国际顶会与核心期刊上发表高水平论文四篇，其中申请人团队2022年在相关领域国际高水平期刊上发表SCI论文三篇，其中一篇为“Fengda Hao, Jiaojiao Li*, Rui Song*, Yunsong Li and Kailang Cao. Structure-Aware Graph Convolution Network for Point Cloud Parsing.”发表在计算机视觉领域中科院一区期刊《IEEE Transactions on Multimedia》上；一篇为“Fengda Hao, Rui Song*, JiaoJiao Li*, Kailang Cao, Yunsong Li. Cascaded Geometric Feature Modulation Network for Point Cloud Processing.”发表在计算机学科国际学术期刊《Neurocomputing》上，一篇为“Fengda Hao, Jiaojiao Li, Rui Song, Yunsong Li and Kailang Cao. Mixed Feature Prediction on Boundary Learning for Point Cloud Semantic Segmentation.”发表在遥感领域权威期刊《Remote Sensing》上。另外，申请人团队在国际计算机多媒体领域顶级会议ACM Multimedia 2021上发表题为“ASFM-Net: Asymmetrical Siamese Feature Matching Network for Point Completion”的研究成果。该项成果在2021年斯坦福大学发布的Completion3D点云补全任务榜单中排列第一。
 
 \myPara{光谱图像目标检测方面}
-目标检测：申请人团队在遥感图像目标检测领域开展研究，在相关领域国际期刊上发表了高水平论文，其中申请人团队2022年在相关领域国际高水平期刊上发表数篇SCI论文，代表性论文有“J. Li, H. Zhang, R. Song, W. Xie, Y. Li and Q. Du, Structure-Guided Feature Transform Hybrid Residual Network for Remote Sensing Object Detection.”发表在遥感领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，该工作提出了一种新的结构引导的特征变换混合残差（SGFTHR）网络，该网络可以以无锚的方式克服在不同尺度上目标检测的低性能，尤其是对于小而密集的目标，进一步提升了检测性能。
+申请人团队在遥感图像目标检测领域开展研究，在相关领域国际期刊上发表了高水平论文，其中申请人团队2022年在相关领域国际高水平期刊上发表数篇SCI论文，代表性论文有“J. Li, H. Zhang, R. Song, W. Xie, Y. Li and Q. Du, Structure-Guided Feature Transform Hybrid Residual Network for Remote Sensing Object Detection.”发表在遥感领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，该工作提出了一种新的结构引导的特征变换混合残差（SGFTHR）网络，该网络可以以无锚的方式克服在不同尺度上目标检测的低性能，尤其是对于小而密集的目标，进一步提升了检测性能。
 
 \myPara{多源融合方面}
-多源融合：申请人团队在多源数据融合处理领域展开研究，在相关领域国际核心期刊上发表高水平论文三篇，其申请人团队2022年在相关领域国际高水平期刊上发表SCI论文三篇，其中一篇为“Jiaojiao Li，Yuzhe Liu, Rui Song, Yunsong Li, Kailiang Han and Qian Du. Sal2RN: A Spatial–Spectral Salient Reinforcement Network for Hyperspectral and LiDAR Data Fusion Classification”发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，本文提出了一种基于跨层特征提取和互补融合策略的深度学习网络用于LiDAR和Hyperspectral联合分类，提升了LiDAR和Hyperspectral的分类性能；一篇为“Jiaojiao Li, Yinle Ma, Rui Song, Bobo Xi, Danfeng Hong and Qian Du. A Triplet Semi-supervised Deep Network for Fusion Classification of Hyperspectral and LiDAR Data” 发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，提出一种级联神经网络来提取LiDAR深度特征，提升了LiDAR和Hyperspectral图像的融合感知性能；一篇为“Yunsong Li , Yuxuan Zheng, Jiaojiao Li, Rui Song. Hyperspectral Pansharpening With Adaptive Feature Modulation-Based Detail Injection Network”, 发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，提出一种基于自适应特征调制的细节注入融合网络，提升PAN和Hyperspectral的融合性能。
+申请人团队在多源数据融合处理领域展开研究，在相关领域国际核心期刊上发表高水平论文三篇，其申请人团队2022年在相关领域国际高水平期刊上发表SCI论文三篇，其中一篇为“Jiaojiao Li，Yuzhe Liu, Rui Song, Yunsong Li, Kailiang Han and Qian Du. Sal2RN: A Spatial–Spectral Salient Reinforcement Network for Hyperspectral and LiDAR Data Fusion Classification”发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，本文提出了一种基于跨层特征提取和互补融合策略的深度学习网络用于LiDAR和Hyperspectral联合分类，提升了LiDAR和Hyperspectral的分类性能；一篇为“Jiaojiao Li, Yinle Ma, Rui Song, Bobo Xi, Danfeng Hong and Qian Du. A Triplet Semi-supervised Deep Network for Fusion Classification of Hyperspectral and LiDAR Data” 发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，提出一种级联神经网络来提取LiDAR深度特征，提升了LiDAR和Hyperspectral图像的融合感知性能；一篇为“Yunsong Li , Yuxuan Zheng, Jiaojiao Li, Rui Song. Hyperspectral Pansharpening With Adaptive Feature Modulation-Based Detail Injection Network”, 发表在遥感图像处理领域中科院一区TOP期刊《IEEE Transactions on Geoscience and Remote Sensing》上，提出一种基于自适应特征调制的细节注入融合网络，提升PAN和Hyperspectral的融合性能。
 
 
 \subsection{研究工作获奖}
