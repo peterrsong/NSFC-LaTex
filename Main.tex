@@ -35,6 +35,9 @@
 
 \ContentDes{（一）立项依据与研究内容（建议8000字以下）：}
 
+\iffalse
+\subsection{---SR修改分割线---}
+\fi
 
 \NsfcSection{1}{项目的立项依据}{
 （研究意义、国内外研究现状及发展动态分析，需结合科学研究发展趋势来论述科学意义；或结合国民经济和社会发展中迫切需要解决的关键科技问题来论述其应用前景。附主要参考文献目录）；}
@@ -53,7 +56,7 @@
 
 大多数姿态估计方法遵循两阶段的范式，首先检测图像中的目标物体，之后在缩放后的目标物体区域上进行姿态估计。尽管现有方法在大多数简单的场景下表现良好，但由于所使用的检测器对弱纹理或被遮挡工件的检测效果并不理想，算法在智能装配应用中的性能急剧下降。
 
-对于第一阶段的目标检测任务，常用的检测方法有两段式和单段式两类\cite{ATSS, fcosv1, fcosv2, PAA, faster-rcnn, maskrcnn}。两段式检测方法首先采用区域建议网络~\cite{faster-rcnn, maskrcnn}生成边界框候选体，然后由分类和细化网络处理，去除假阳性，并调整边界框的位置和大小。这种策略准确度较高，但成本高，效率低。单段式检测器通过在编码器的最终特征图中的每个空间位置用一组预定义的锚框代替区域建议网络来解决这个问题~\cite{fcosv1,retinanet,yolov1}。这种方法会导致锚点中存在大量负样本，虽然这一问题可以通过focal loss~\cite{retinanet,fpn}在一定程度上解决，但程度有限，早期的单段式检测器并没有达到两段式检测器的精度。Zhang~\cite{ATSS}通过一个简单而有效的正样本策略解决了这一问题。最近的大多数检测方法都遵循类似的策略~\cite{fcosv2, PAA, autoassign, OTA, TTF, yolov3}，相关改进算法的准确性比两段式方法更好，同时效率更高。但即便如此，这些方法都假设场景中物体的纹理相对丰富，且具有较少的遮挡，与智能装配的6D物体姿态估计场景中的特性仍有较大差异。
+对于第一阶段的目标检测任务，常用的检测方法有两段式和单段式两类\cite{ATSS, fcos, PAA, faster-rcnn, maskrcnn}。两段式检测方法首先采用区域建议网络~\cite{faster-rcnn, maskrcnn}生成边界框候选体，然后由分类和细化网络处理，去除假阳性，并调整边界框的位置和大小。这种策略准确度较高，但成本高，效率低。单段式检测器通过在编码器的最终特征图中的每个空间位置用一组预定义的锚框代替区域建议网络来解决这个问题~\cite{fcos,retinanet,yolov1}。这种方法会导致锚点中存在大量负样本，虽然这一问题可以通过focal loss~\cite{retinanet,fpn}在一定程度上解决，但程度有限，早期的单段式检测器并没有达到两段式检测器的精度。Zhang~\cite{ATSS}通过一个简单而有效的正样本策略解决了这一问题。最近的大多数检测方法都遵循类似的策略~\cite{PAA, autoassign, OTA, TTF, yolov3}，相关改进算法的准确性比两段式方法更好，同时效率更高。但即便如此，这些方法都假设场景中物体的纹理相对丰富，且具有较少的遮挡，与智能装配的6D物体姿态估计场景中的特性仍有较大差异。
 
 % 弱纹理物体位姿估计解决方案：在数据输入源头上解决，即增加depth图像和高光谱图像，实现多源融合。
 危化品工件的表面大多没有纹理，这种工况下的目标检测是姿态估计中的一个难点。仅通过RGB图像估计的位姿精度不高，鲁棒性较差。一方面，深度学习网络很难从单幅RGB图像中提取有效的颜色和几何特征，另一方面，三维物体到二维像平面的投影过程丢失了三维结构的几何约束，单幅图像无法逆推结构信息。
@@ -446,7 +449,7 @@ GRU使用三个子网络分别建模遗忘信息的程度$z_t$、更新信息的
 本部分的位姿修正方案，申请人团队已在基于光流的算法框架中初步验证了可行性。实验过程中，我们首先利用目前成熟的 6D 姿态估计网络预测得到一个不精确的初始6D 姿态$P_0$，之后利用该姿态对目标进行渲染和定位。对于输入的一张目标RGB图像和在初始姿态$P_0$下渲染的目标模型图像，实验方案首先利用一个孪生卷积神经网络来对该两张图像进行特征提取，分别得到维度为$H\times W$的特征图$g_1$和$g_2$。之后根据提取的特征向量构建4D相关体$C$，$C$的维度为$H\times W \times H \times W$，其中    $C_{ijkl} = g^1_{ij} \cdot g^2_{kl}$，
 $C$表示了$g_1$中所有特征向量与$g_2$中所有特征向量的相关性。
 然后，实验过程中，在每次迭代中同时估计残差光流$\Delta F$与残差姿态$\Delta P$，并进行估计姿态的更新，即$P_i = \Delta P_i \otimes P_{i-1}$。其中，我们利用一个单独的姿态估计网络$f_{\theta}$通过估计的残差光流进行残差姿态的回归，即$\Delta P_i = f_{\theta}(\Delta F)$，
-$f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分别预测旋转$\Delta R$与平移$\Delta t$。实验结果表明？？？
+$f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分别预测旋转$\Delta R$与平移$\Delta t$。实验结果表明初步方案能有效提升位姿估计的精度，在此方案基础上继续改进具备可行性。
 
 上述研究方案中的关键技术问题将通过图\ref{fig:research_solution}所示所示的流程逐步开展研究，通过理论分析和实验验证逐步完善算法，验证方案的性能。
 
@@ -483,7 +486,7 @@ $f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分�
 
 \subsection{预期研究成果}
 
-本项目预期发表学术研究论文10篇，其中顶会或顶刊论文8篇，申请专利和软件著作权8件，在三个关键研究内容方面的算法成果将在github上对外发布代码，相应的实验数据集也将一并发布。本项目的研究有很强的应用背景，研究内容之间模块化和体系化较强，研究成果也将指导真实装配流程，实际运行的结果将在国际会议上进行成果展示。研究期间将培养博士研究生3\textasciitilde4名，硕士研究生12\textasciitilde15名。
+本项目预期发表学术研究论文10篇，其中顶会或顶刊论文8篇，申请专利和软件著作权8件，在三个关键研究内容方面的算法成果将在github上对外发布代码，相应的实验数据集也将一并发布。本项目的研究有很强的应用背景，研究内容之间模块化和体系化较强，研究成果也将指导真实装配流程，实际运行的结果将在国际会议上进行成果展示。研究期间将培养博士研究生4名，硕士研究生4名。
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ContentDes{（二）研究基础与工作条件}
@@ -498,9 +501,6 @@ $f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分�
 \myPara{位姿估计方面}
 申请人团队与Magic Leap的Yinlin Hu博士，以及EPFL的Mathieu教授保持长期合作。Yinlin Hu为申请人指导的博士生，于2018年推荐到EFPL做博士后研究。在前期合作研究中联合指导课题组的博士和硕士研究生。团队在2022年10月参加了ECCV的BOP 6D姿态挑战赛，并在Single-Model赛道获得冠军。2023年团队有两篇IEEE国际顶会CVPR论文被录用，其中一篇为“\#2298 Yang Hai, Rui Song, Jiaojiao Li, Mathieu Salzmann, Yinlin Hu. Rigidity-Aware Detection for 6D Object Pose Estimation. IEEE CVPR2023 ”，另一篇为“\#2307 Yang Hai, Rui Song, Jiaojiao Li, Yinlin Hu. Shape-Constraint Recurrent Flow for 6D Object Pose Estimation. IEEE CVPR2023”。
 
-\iffalse
-\subsection{---SR修改分割线---}
-\fi
 \myPara{光流估计方面}
 申请人团队在光流估计方面有相关技术积累，并在6D姿态估计算法中集成了光流估计的计算流程。申请人曾在CVPR发表两篇论文，一篇为Hu, Yinlin and Song, Rui and Li, Yunsong., “Efficient Coarse-to-Fine Patch Match for Large Displacement Optical Flow,” in 2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Jun. 2016, pp. 5704–5712.该论文为Spotlight，解决大位移情况下的光流估计问题。另一篇为Hu, Yinlin and Li, Yunsong and Song, Rui, “Robust Interpolation of Correspondences for Large Displacement Optical Flow”, in 2017 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), Jul. 2017, no. July, pp. 4791–4799.解决稠密光流中的鲁棒插值问题。此外，申请人太对发表在Image and Vision Computing上的论文Hu, Yinlin and Song, Rui and Li, Yunsong and Rao, Peng and Wang, Yangli, “Highly accurate optical flow estimation on superpixel tree,” Image Vis. Comput., vol. 52, pp. 167–177, Aug. 2016.已被OpenCV收录。上述三篇论文的代码均已在github开源。
 
@@ -544,15 +544,7 @@ $f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分�
     \item 多源图像采集系统的集成。目前可见光相机、深度相机和光谱相机仍为分立设备，本项目执行过程中需定制支架、线缆等，对设备环境进行改造。使改造后的设备能对同一场景同时输出可见光图、深度图和光谱图。
 \end{itemize}
 
-
-
-\myPara{经费和硬件条件方面}我们
-
-
-\myPara{人员方面}我们
-
-\myPara{国内外合作方面} 我们
-
+申请人团队在本项目的几个研究方向上都有算法基础，部分代码已开源，部分新发表的论文正在整理开源代码。基于这些代码，在准备好相关实验环境和数据后，申请人团队能够快速启动该项目的研究。目前研究团队有3名教师、6名博士和20名硕士，其中4名博士生和4名硕士生将参与本项目的研究。除申请人自身团队成员外，团队与Magic Leap的Yinlin Hu博士，以及EPFL的Mathieu教授在6D姿态估计方面保持长期合作。在光谱影像处理方面与美国密西西比州立大学的Qian Du教授保持长期合作，与其他团队的合作有利于本项目研究的开展。
 
 \NsfcSection{3}{正在承担的与本项目相关的科研项目情况}{
 （申请人和主要参与者正在承担的与本项目相关的科研项目情况，包括国家自然科学基金的项目和国家其他科技计划项目，要注明项目的资助机构、项目类别、批准号、项目名称、获资助金额、起止年月、与本项目的关系及负责的内容等）；}
@@ -563,19 +555,43 @@ $f_\theta$由若干层卷积层与全连接层组成，最终由两个支路分�
 \NsfcSection{4}{完成国家自然科学基金项目情况}{
 （对申请人负责的前一个已资助期满的科学基金项目（项目名称及批准号）完成情况、后续研究进展及与本申请项目的关系加以详细说明。另附该项目的研究工作总结摘要（限500字）和相关成果详细目录）。}
 
-补充中...
+申请人在2015.01至2017.12期间主持了一项国家自然科学基金青年科学基金项目，项目名称为“视频客观质量评价中的运动掩膜特性研究”，批准号为61401337，该项目已于2018年1月正常结题。该题目研究视频质量评价方法，在视频连续帧之间的光流估计方面提出了多项改进方法，光流估计的结果集成到视频质量评价模型的输入中，采用机器学习的方法设计了视频质量评价模型，改进了视频质量评价的算法性能。
+在该基金项目研究过程中，我们完成了多组主观测试实验，将主观测试实验的结果作为真值，验证视频质量评价的算法性能。由于采用了机器学习的方法，我们将视频质量评价的问题建模为回归问题，通过Ensemble和Adaboost的方法使算法计算的结果逼近真值。但主观实验的过程中发现，不同的受试者给出的主观质量评价分数之间的方差比较大，导致数据集真值的置信度较低。所设计的算法虽然能更好地逼近真值，但其设计本身的意义已经出现了偏差。因此申请人在基金项目结题后未继续推进该方向的研究工作。但在研究过程中，为了抽取视频内容的运动特征提出的光流估计算法，在后续研究和工程中一直在持续改进和优化。
+
+该基金项目的总结摘要如下：
+在基金支持下，本项目主要完成了几项工作：设计了主观观测实验，用眼动仪记录了视频质量测试过程中测试者的眼动数据；通过分析眼动数据及观测者的观测特性，提出了高效鲁棒的光流估计方法；以光流估计的结果为基础，结合全局运动估计算法思路，采用空域和时域融合的方法提取视频中的运动关注区域；通过分析运动关注区域的连贯性，设计时隙切分方法。然后以上述算法和实验的结果为基础，设计了基于机器学习的视频质量评价模型，并用眼动测试的结果和主观测试的结果为真值，分析算法的性能。通过项目的研究，在光流估计方面提出了多项改进算法，并在国际期刊和A类会议中发表了相关论文，同时也发现了视频质量评价中仍存在的问题，为后续的研究提供可借鉴的实验结果。
+
+在该基金支持下取得的论文成果包括：
+\begin{enumerate}
+    \item Rui Song*, Yeqing Yuan, Yunsong Li, Yangli Wang. Extra Sign Bit Hiding Algorithm Based on Recovery of Transform Coefficients. Circuits, Systems, and Signal Processing. Accepted 2017.12.(SCI, IF:1.694).
+    \item Yinlin Hu, Yunsong Li, Rui Song*, Peng Rao, Yangli Wang. Minimum Barrier Superpixel Segmentation. Image and Vision Computing. Accepted. 2017.12(SCI, IF:2.671).
+    \item Rui Song*, Yunsong Li, Yuan Jia, Yangli Wang, Peng Rao. Efficient, robust and divisible paired comparison for subjective quality assessment. Multimedia Tools and Applicatinos. 2017.07, Online first.
+    \item Yunsong Li, Yinlin Hu, Rui Song*, Peng Rao and Yangli Wang. Coarse-to-fine PatchMatch for Dense Correspondence. IEEE Transactions on Circuits and Systems for Video Technology(CSVT), 2017.06, Online first.
+    \item Yinlin Hu, Yunsong Li, Rui Song*. Robust Interpolation of Correspondences for Large Displacement Optical Flow, IEEE Conference on Computer Vision and Pattern Recognition 2017(CVPR2017), 2017.07.  
+    \item Hyunsuk Ko, Rui Song*, C.-C. Jay Kuo. A ParaBoost Stereoscopic Image Quality Assessment (PBSIQA) System, Journal of Visual Communication and Image Representation, Volumn 45, May 2017, 156-169.  (SCI:000398427100014).
+    \item Yinlin Hu, Rui Song, Yunsong Li*, Rao Peng, Yangli Wang. Highly Accurate Optical Flow Estimation on Superpixel Tree. Image and Vision Computing, 52,167-177, 2016.(SCI:000383818400013, IF:1.766).  
+    \item Yinlin Hu, Rui Song, Yunsong Li*, Yangli Wang. Efficient Coarse-to-Fine PatchMatch for Large Displacement Optical Flow. IEEE Conference on Computer Vision and Pattern Recognition 2016(CVPR2016), Oral Soptlight, 2016.6.  
+    \item Rui Song, Hyunsuk Ko*, C.C.Jay Kuo. MCL-3D: a database for stereoscopic image quality assessment using 2D-image-plus-depth source, Journal of Information Science and Engineering, 2015, 31(5),1593-1611. (SCI:000362464100007）   
+    \item Joe Yuchieh Lin, Rui Song*, Chi-Hao Wu, TsungJung Liu, Haiqiang Wang, C.-C Jay Kuo. MCL-V: A streaming video quality assessment database, Journal of Visual Communication and Image Representation, Elsvier, 30(2015):1-9.(SCI:000357761900001) 
+\end{enumerate}
+
+在该基金支持下取得的专利成果包括：
+\begin{enumerate}
+    \item 宋锐,胡银林,李云松,贾媛,王养利,祝桂林，一种高效大位移光流估计方法，授权日期：2018/9/3，专利号：ZL201610118042.4
+    \item 宋锐,祝桂林,胡银林,贾媛,李云松,王养利，基于帧间联系和局部最差的时域融合算法，授权日期：2018/12/6，专利号：ZL201610297994.7
+    \item 宋锐,安亮,贾媛,李云松,王养利,赵园伟，一种基于运动估计和时空域相关性的快速帧间预测方法，授权日期：2019/1/10，专利号：ZL201610300137.8
+    \item 宋锐,胡银林,李云松,贾媛,王养利,祝桂林，一种高效大位移光流估计方法，授权日期：2018/9/3，专利号：ZL201610118042.4
+    \item 宋锐,祝桂林,胡银林,贾媛,李云松,王养利，基于帧间联系和局部最差的时域融合算法，授权日期：2018/12/6，专利号：ZL201610297994.7
+    \item 宋锐,胡银林,李云松,王养利，一种基于两级边缘敏感滤波的高精确光流估计方法，授权日期2020/1/20，专利号ZL201610423386.6
+\end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \ContentDes{（三） 其他需要说明的问题}
 
-
-
 \NsfcSection{1}{}{
 申请人同年申请不同类型的国家自然科学基金项目情况（列明同年申请的其他项目的项目类型、项目名称信息，并说明与本项目之间的区别与联系）。}
 
-同年参与另外一项自然科学基金面上项目的申请，项目类型为面上项目，项目名称为...
-
-该项目与本项目的侧重点不同。
+无。
 
 \NsfcSection{2}{}{
 具有高级专业技术职务（职称）的申请人或者主要参与者是否存在同年申请或者参与申请国家自然科学基金项目的单位不一致的情况；如存在上述情况，列明所涉及人员的姓名，申请或参与申请的其他项目的项目类型、项目名称、单位名称、上述人员在该项目中是申请人还是参与者，并说明单位不一致原因。}
